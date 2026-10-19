@@ -1,0 +1,38 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import assert from 'node:assert/strict';
+const root=process.cwd();
+const pkg=JSON.parse(readFileSync(join(root,'package.json'),'utf8'));
+const app=JSON.parse(readFileSync(join(root,'app.json'),'utf8'));
+assert.equal(pkg.name,'daymark-fit');
+assert.ok(pkg.dependencies['daymark-step-tracker'],'Local native step module must be installed as a dependency');
+assert.ok(pkg.dependencies.expo && pkg.dependencies['expo-sqlite'] && pkg.dependencies['expo-sensors']);
+assert.ok(pkg.dependencies['expo-location'],'GPS session tracking requires expo-location');
+assert.ok(pkg.dependencies['expo-task-manager'],'Background GPS task requires expo-task-manager');
+assert.ok(app.expo.plugins.some(p=>(Array.isArray(p)?p[0]:p)==='expo-location'));
+assert.ok(app.expo.android.permissions.some(p=>p.toLowerCase().includes('location')));
+for(const f of ['app/activity-live.tsx','src/screens/Activity.tsx','src/screens/Home.tsx','src/services/steps.ts','src/services/gpsTracking.ts','src/services/activityValidation.ts','src/services/db.ts','src/screens/Analytics.tsx','app/run-tracker.tsx','src/screens/RunTrackerScreen.tsx','scripts/sanity-check.mjs'])assert.ok(existsSync(join(root,f)),`Missing ${f}`);
+const steps=readFileSync(join(root,'src/services/steps.ts'),'utf8');assert.match(steps,/Pedometer\.watchStepCount/);assert.match(steps,/DaymarkStepTracker/);assert.match(steps,/setDailySteps/);assert.ok(existsSync(join(root,'modules/daymark-step-tracker/android/src/main/java/com/daymark/steps/DaymarkStepService.kt')),'Missing native Android foreground step service');
+assert.ok(existsSync(join(root,'src/services/shareCoordinator.ts')),'Missing serialized PDF share coordinator');
+const share=readFileSync(join(root,'src/services/shareCoordinator.ts'),'utf8');assert.match(share,/shareQueue/);assert.match(share,/Sharing\.shareAsync/);
+const activity=readFileSync(join(root,'src/screens/Activity.tsx'),'utf8');for(const term of ['Your movement','EST. DISTANCE','EST. STEP KCAL','Activity history','Activity summary','Last sensor update','Distance range (km)','Sort by'])assert.ok(activity.includes(term),`Missing ${term}`);assert.match(activity,/GPS distance and pace/);
+const live=readFileSync(join(root,'app/activity-live.tsx'),'utf8');assert.match(live,/startGpsSession/);assert.match(live,/GPS DISTANCE/);assert.match(live,/Start session/);assert.match(live,/saveActivity/);
+const home=readFileSync(join(root,'src/screens/Home.tsx'),'utf8');assert.doesNotMatch(home,/GPS DISTANCE|listActiveRoutePoints|routeDistance/);assert.match(home,/Today's pinned plan/);
+assert.match(live,/type!=='meditation'\?/);
+assert.ok(!pkg.dependencies['react-native-maps'], 'Map dependency should be removed from this release');
+assert.match(readFileSync(join(root,'src/screens/RunTrackerScreen.tsx'),'utf8'), /Map display is disabled/);
+assert.ok(existsSync(join(root,'src/services/stride.ts')),'Missing height-based stride helper');
+assert.ok(existsSync(join(root,'src/components/HeightSetup.tsx')),'Missing first-launch height setup');
+assert.match(readFileSync(join(root,'src/screens/Settings.tsx'),'utf8'),/Height & step distance/);
+assert.match(readFileSync(join(root,'modules/daymark-step-tracker/android/src/main/java/com/daymark/steps/DaymarkStepService.kt'),'utf8'),/TYPE_STEP_DETECTOR_MOTION_FILTERED/);
+console.log('Daymark Fit v0.6.0 source sanity checks passed. This is not a native build or device QA test.');
+
+const planner = readFileSync(join(root,'src/screens/Planner.tsx'),'utf8');
+assert.match(planner,/multiline/);
+assert.match(planner,/keyboardShouldPersistTaps/);
+const runRoute = readFileSync(join(root,'app/run-tracker.tsx'),'utf8');
+assert.match(runRoute,/saveActivity/);
+assert.match(runRoute,/routeJson/);
+
+const validation = readFileSync(join(root,'src/services/activityValidation.ts'),'utf8');assert.match(validation,/Needs Review/);assert.match(validation,/Low Confidence/);assert.match(validation,/routePointCount/);
+const stride = readFileSync(join(root,'src/services/stride.ts'),'utf8');assert.match(stride,/h < 170\) return 0\.65/);assert.match(stride,/h < 180\) return 0\.70/);

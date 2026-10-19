@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "Daymark Fit",
+    "slug": "daymark-fit",
+    "version": "0.6.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "daymarkfit",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": false
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Daymark Fit uses motion sensors to count steps on your device."
+        }
+      ],
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Daymark Fit uses your location during Walk and Run sessions to measure distance and pace.",
+          "locationAlwaysAndWhenInUsePermission": "Allow Daymark Fit to record GPS distance and pace during an active workout, including when the app is in the background.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      "expo-sharing"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMotionUsageDescription": "Daymark Fit uses motion activity to count steps on your device."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0E13"
+      },
+      "permissions": [
+        "ACTIVITY_RECOGNITION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION"
+      ],
+      "package": "com.daymark.fit",
+      "versionCode": 13
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "62f0f103-5b92-4703-983e-58aec293eb12"
+      }
+    }
+  }
+}

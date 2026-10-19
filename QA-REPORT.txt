@@ -1,0 +1,20 @@
+Daymark Fit v0.6.0 — source validation report
+
+Checks run in packaging environment:
+- `node scripts/sanity-check.mjs`: PASS
+- Confirmed `react-native-maps` is not a package dependency.
+- Confirmed map-free GPS walk/run screen remains present.
+- Confirmed height setup, height-based stride helper, activity history filters, and filtered Android step sensor code are present.
+
+Not run / not verified:
+- TypeScript typecheck: cannot run without installing project dependencies.
+- Native Gradle build / EAS cloud build: not run.
+- Physical Android device QA: not run.
+- Step classification accuracy on a moving motorbike: not proven. Accelerometer/cadence checks are heuristics and require testing on the target device.
+
+Before EAS build:
+1. Run `npm install` to install dependencies and generate `package-lock.json`.
+2. Run `npx expo install --fix`.
+3. Run `npm run typecheck` and `npm test`.
+4. Run `npx expo-doctor`.
+5. Only if checks pass, start `npx eas-cli@latest build --platform android --profile preview`.
